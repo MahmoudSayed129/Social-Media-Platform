@@ -1,0 +1,175 @@
+{% extends "Gallery/layout.html" %}
+{% load static %}
+{% block body %}
+    <script src="https://www.dukelearntoprogram.com/course1/common/js/image/SimpleImage.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',()=>{
+            document.querySelectorAll(".like").forEach(i => {
+                i.addEventListener("click", function (){
+                    const element = event.target;
+                    const post_id = element.dataset.id;
+                    console.log("hi");
+                    event.preventDefault();
+                    let likes = parseInt(document.querySelector(`#num${post_id}`).innerHTML);
+                    document.querySelector(`#num${post_id}`).innerHTML = likes+1;
+                    element.style.display = "none";
+                    document.querySelector(`#u${post_id}`).style.display = "inline";
+                    fetch(`/like/post_${post_id}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                            post_id: post_id
+                            })
+                    });
+                });
+            })
+            document.querySelectorAll(".unlike").forEach(i =>{
+                    i.addEventListener("click", function (){
+                        const element = event.target;
+                        const post_id = element.dataset.id;
+                        console.log("unlike");
+                        event.preventDefault();
+                        //console.log(document.querySelector(`#${post_id}`).innerHTML);
+                        let likes = parseInt(document.querySelector(`#num${post_id}`).innerHTML);
+                        document.querySelector(`#num${post_id}`).innerHTML = likes - 1;
+                        element.style.display = "none";
+                        document.querySelector(`#l${post_id}`).style.display = "inline";
+                        fetch(`/unlike/post_${post_id}`, {
+                                method: 'PUT',
+                                body: JSON.stringify({
+                                post_id: post_id
+                                })
+                        });
+                });
+            });
+            if (document.querySelector("#btn_new_post")){
+                document.querySelector("#btn_new_post").addEventListener("click", function() {
+                event.preventDefault();
+                console.log("in ");
+                document.querySelector("#add_post").style.display = "block";
+                document.querySelector("#btn_new_post").style.display = "none";
+            })
+            }
+        });
+        function view_img(){
+            let pi = document.querySelector("#img");
+            let canvas = document.querySelector("#canvas");
+            img=new SimpleImage(pi);
+            img.drawTo(canvas);
+        }
+    </script>
+    <style>
+        #wedget {
+            background-color: white;
+            box-shadow: 0px 0px 3px 3px white;
+            margin-bottom: 10px;
+        }
+        .post {
+            /* border: 1px solid black; */
+            border-radius: 5px;
+            width: 90%;
+            margin: auto;
+            padding: 10px;
+        }
+        #container {
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+            /* border-left: 1px solid black;
+            border-right: 1px solid black;  */
+            background-color: #fff98a;
+        }
+        body {
+            background-color: #EAC0EB;
+        }
+        canvas {
+            width: 580px;
+            border: 1px solid black;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+    </style>
+    <div id="container">
+        
+    <h1 style="text-align: center;">All Posts</h1>
+    <hr>
+        {% if not following_page %}
+            {% if error %}
+            <div class="post" id="add_post">
+                <h3>Adding new Post</h3>
+                <div class="alert alert-danger" role="alert">You should add either text post or photo or both</div>
+                <form action="{% url 'add_post' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <textarea name="post" placeholder="Write something .." autofocus autocomplete="off" class="form-control" style="width:auto;" cols="73" rows="2"></textarea>
+                    <canvas id="canvas"></canvas>
+                    <input multiple="false" accept="image/*" id="img"  onchange="view_img()" type="file" name="img">
+                    <input class="btn btn-primary" style="margin-top: 10px;" type="submit" value="Post">
+                </form>
+            </div>
+            {% else %}
+            <button class="btn btn-primary" id="btn_new_post" style="margin-bottom: 15px;" >Share new Post</button>
+            <div class="post" id="add_post" style="display: none;">
+                <h3>Adding new Post</h3>
+                <form action="{% url 'add_post' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <textarea name="post" placeholder="Write something .." autofocus autocomplete="off" class="form-control" style="width:auto;" cols="73" rows="2"></textarea>
+                    <canvas id="canvas"></canvas>
+                    <input multiple="false" accept="image/*" id="img" onchange="view_img()" type="file" name="img">
+                    <input class="btn btn-primary" style="margin-top: 10px;" type="submit" value="Post">
+                </form>
+            </div>
+            {% endif %}
+        {% endif %}
+        {% for post in page_obj %}
+        <div id="wedget"> 
+            {% if post.post.user.profile_img %}
+            <a href="http://127.0.0.1:8000/profile/{{post.post.user.username}}"><h5 style="margin-bottom: 5px; "><img src="{{post.post.user.profile_img.url}}" width="35px" height="35px" style="margin-right: 5px; border-radius: 50%;">{{post.post.user.username}}</h5></a>
+        {% else %}
+            <a href="http://127.0.0.1:8000/profile/{{post.post.user.username}}"><h5 style="margin-bottom: 5px; margin-right: 10px;"><img src="{% static 'Gallery/default.png' %}"  width="35px" height="35px" style="margin-right: 5px; border-radius: 50%;">{{post.post.user.username}}</h5></a>
+        {% endif %}
+            <a href="http://127.0.0.1:8000/posts/{{post.post.id}}" style="text-decoration: none;">
+                <div class="post" style="margin-top: 0px;">
+                    <div id="div{{post.post.id}}">{{post.post.text}}</div>
+                    {% if post.post.post %}
+                        <div><img src="{{post.post.post.url}}" width="100%" style="margin: auto;"></div>
+                    {% endif %}
+                    <div style="opacity: 0.5; text-align: right; text-align: right;">{{post.post.date}}</div>
+                </div>
+            </a>
+
+                <div style="margin-top: auto; margin-bottom: 10px; margin-left: 25px;">
+                    {% if post.liked %}
+                        <div style="display: inline;" class="unlike"><i id="u{{post.post.id}}" data-id="{{post.post.id}}" style="color: red;" class="heart fa fa-heart-o"></i></div>
+                        <div style=" display: inline;"  class="like"><i id="l{{post.post.id}}" data-id="{{post.post.id}}" style="display:none;" class="heart fa fa-heart-o"></i></div>
+                        
+                    {% else %}
+                        <div style="display: inline;"  class="like" ><i id="l{{post.post.id}}" data-id="{{post.post.id}}"  class="heart fa fa-heart-o"></i></div>
+                        <div style="display: inline;"  class="unlike"><i id="u{{post.post.id}}" data-id="{{post.post.id}}" style="color: red; display:none;" class="heart fa fa-heart-o"></i></div>
+                    {% endif %}  
+                    <div id="num{{post.post.id}}" style="display: inline;">{{post.num_likes}}</div>
+                    <div  style="margin-left:10px ; display: inline;">Comments {{post.num_comments}}</div>
+                </div>
+                    <textarea id="new_{{post.post.id}}" style="display:none; margin-left: 20px;" cols="30" rows="2"></textarea>
+                    <button class="btn btn-primary" id="save_{{post.post.id}}" style="display:none; margin-top: 10px; margin-left: 20px;">Update</button>
+        </div>
+        {% empty %}
+            <h5>No Posts</h5>
+        {% endfor %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+{% endblock %}

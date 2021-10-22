@@ -1,0 +1,68 @@
+{% extends "Gallery/layout.html" %}}
+
+{% block body %}
+<style>
+    #container {
+        border-radius: 5px;
+        border: 1px solid black;
+        padding: 20px;
+        /* margin-left: 450px;
+        margin-top: 50px;
+        width: 350px; */
+        margin: auto;
+        width: 50%;
+        text-align: center;
+        background-color: #FFFCC3;
+    }
+    body {
+        background-color: #EAC0EB;
+    }
+    canvas {
+        width: 300px;
+        height: 300px;
+        border: 1px solid black;
+        border-radius: 50%;
+    }
+</style>
+<script src="https://www.dukelearntoprogram.com/course1/common/js/image/SimpleImage.js"></script>
+<script>
+    function view_img(){
+        let pi = document.querySelector("#img");
+        let canvas = document.querySelector("canvas");
+        img=new SimpleImage(pi);
+        img.drawTo(canvas);
+    }
+</script>
+    <div id="container">
+        <strong style="font-family: sans-serif; color: #B485FF;">Social Media Platform</strong>   
+     <hr>
+    <h2>Register</h2>
+
+    {% if message %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+    {% endif %}
+    
+    <form action="{% url 'register' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <input autocomplete="off" class="form-control" autofocus type="text" name="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <input autocomplete="off" class="form-control" type="email" name="email" placeholder="Email Address">
+        </div>
+        <div class="form-group">
+            <input autocomplete="off" class="form-control" type="password" name="password" placeholder="Password">
+        </div>
+        <div class="form-group">
+            <input autocomplete="off" class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
+        </div>
+        <strong>Choose Your Profile Phote:(*optionally)</strong>
+        <canvas ></canvas>
+        <input multiple="false" accept="image/*" id="img" onchange="view_img()" type="file" name="profile_img">
+        <input class="btn btn-primary" type="submit" value="Register">
+    </form>
+
+    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+    </div>
+
+{% endblock %}
