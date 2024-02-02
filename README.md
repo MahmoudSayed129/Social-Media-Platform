@@ -1,7 +1,5 @@
 # Social media platform project
-#### Video Demo:  
-## Demonstration
-Watch the [YouTube video](https://youtu.be/KHmCH-Hb_z0) to see the application in action.
+
 ## Description
 Using Python (Django framework, models), JavaScript, HTML, and CSS, complete the implementation of a social media platform that allows users to make posts, follow other users, and *like* posts. 
 You must login to use these features.
